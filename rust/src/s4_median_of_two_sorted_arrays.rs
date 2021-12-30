@@ -48,21 +48,43 @@
  *
  *
  */
-
 // @lc code=start
 impl Solution {
     pub fn find_median_sorted_arrays(nums1: Vec<i32>, nums2: Vec<i32>) -> f64 {
-        let mut nums: Vec<i32> = nums1.into_iter().chain(nums2.into_iter()).collect();
-        // FIXME
-        // The complexity of sort_unstable is O(n * log(n)) which doesn't meet the constraint.
-        // AVL tree may be a possible solution.
-        nums.sort_unstable();
-        let len = nums.len();
+        let len = nums1.len() + nums2.len();
         let half = len / 2;
+        let mut seq1 = nums1.into_iter();
+        let mut seq2 = nums2.into_iter();
+        let mut val1 = seq1.next();
+        let mut val2 = seq2.next();
+        let mut median2 = 0;
+        let mut median1 = 0;
+        for _ in 0..=half {
+            median1 = median2;
+            match (val1, val2) {
+                (Some(n1), Some(n2)) if n1 < n2 => {
+                    median2 = n1;
+                    val1 = seq1.next();
+                }
+                (Some(_), Some(n2)) => {
+                    median2 = n2;
+                    val2 = seq2.next();
+                }
+                (Some(n1), _) => {
+                    median2 = n1;
+                    val1 = seq1.next();
+                }
+                (_, Some(n2)) => {
+                    median2 = n2;
+                    val2 = seq2.next();
+                }
+                _ => panic!("can't reach this arm"),
+            }
+        }
         if len % 2 == 0 {
-            (nums[half] + nums[half - 1]) as f64 / 2.0
+            (median2 + median1) as f64 / 2.0
         } else {
-            nums[half] as f64
+            median2 as f64
         }
     }
 }
